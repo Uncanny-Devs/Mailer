@@ -1,0 +1,25 @@
+{
+  "name": "uncanny-mailer",
+  "version": "1.0.0",
+  "description": "A node package to customized mails easily.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Uncanny-Devs/Mailer.git"
+  },
+  "keywords": [
+    "mailer",
+    "nodejs",
+    "nodemailer",
+    "uncanny-devs"
+  ],
+  "author": "Debatreya Das",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Uncanny-Devs/Mailer/issues"
+  },
+  "homepage": "https://github.com/Uncanny-Devs/Mailer#readme"
+}
