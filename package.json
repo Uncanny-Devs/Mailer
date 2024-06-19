@@ -2,9 +2,12 @@
   "name": "uncanny-mailer",
   "version": "1.0.0",
   "description": "A node package to customized mails easily.",
+  "type": "module",
   "main": "lib/index.js",
   "scripts": {
-    "test": "npm run test"
+    "build": "npx tsc",
+    "start": "npm run build && node lib/index.js",
+    "test": "node test/index.test.js"
   },
   "repository": {
     "type": "git",
@@ -21,5 +24,13 @@
   "bugs": {
     "url": "https://github.com/Uncanny-Devs/Mailer/issues"
   },
-  "homepage": "https://github.com/Uncanny-Devs/Mailer#readme"
+  "homepage": "https://github.com/Uncanny-Devs/Mailer#readme",
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.15",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@types/node": "^20.14.6",
+    "nodemailer": "^6.9.14"
+  }
 }
