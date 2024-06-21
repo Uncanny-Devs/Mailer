@@ -2,7 +2,7 @@
   "name": "uncanny-mailer",
   "version": "1.0.0",
   "description": "A node package to customized mails easily.",
-  "type": "module",
+ 
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
   "scripts": {
