@@ -2,16 +2,12 @@
   "name": "uncanny-mailer",
   "version": "1.0.0",
   "description": "A node package to customized mails easily.",
- 
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
+  "type": "module",
+  "main": "lib/index.js",
   "scripts": {
     "build": "npx tsc",
     "start": "npm run build && node lib/index.js",
-    "test": "node test/index.test.js",
-    
-     "tsc": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json"
-
+    "test": "node test/index.test.js"
   },
   "repository": {
     "type": "git",
