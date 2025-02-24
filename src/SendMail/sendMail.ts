@@ -1,52 +1,81 @@
 import nodemailer from "nodemailer";
 import { SendMailDto } from "./sendMail.dto.js";
-import { promises as fs } from "fs";
 import { NodeMailerConfigDto } from "../config/nodemailerConfig.dto.js";
+import { Attachment } from "nodemailer/lib/mailer/index.js";
 
 export interface SendMailOptions {
-	options: SendMailDto;
-	config: NodeMailerConfigDto;
+    options: SendMailDto;
+    config: NodeMailerConfigDto;
+}
+
+// Custom error class for better error handling
+class EmailError extends Error {
+    constructor(message: string, public details?: any) {
+        super(message);
+        this.name = "EmailError";
+    }
 }
 
 const sendEmail = async ({ options, config }: SendMailOptions) => {
-	let htmlContent: string = options.html || "";
-	const isHtml: boolean = options.isHtml || false;
+    // Validate required fields
+    if (!options.html) {
+        throw new EmailError("Email content is required. Provide either html or text.");
+    }
 
-	if (isHtml) {
-		const htmlFilePath: string = htmlContent;
-		try {
-			htmlContent = await fs.readFile(htmlFilePath, "utf-8");
-		} catch (error: any) {
-			console.error("Error reading HTML file: ", error);
-			console.log(
-				"Give the path wrt the root directory of the project. Like: src/emails/email.html"
-			);
-			return error;
-		}
-	}
+    const transporter = nodemailer.createTransport(config);
 
-	const transporter = nodemailer.createTransport(config);
+    try {
+        // Prepare the email payload
+        const mailOptions: nodemailer.SendMailOptions = {
+            from: options.from,
+            to: options.to,
+            cc: options.cc,
+            bcc: options.bcc,
+            subject: options.subject,
+            html: options.html,
+            attachments: options.attachments,
+            // // Add text alternative for non-HTML clients
+            // text: options.text || stripHtml(options.html || "").result
+        };
 
-	try {
-		let info = await transporter.sendMail({
-			from: options.from,
-			to: options.to,
-			subject: options.subject,
-			html: htmlContent,
-		});
-		console.log("Message sent: %s", info.messageId);
-		// Optionally, you can log more information about the sent message:
-		console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        
+        // Logging improvements
+        console.log(`Email sent to ${formatRecipients(options.to)}`);
+        console.debug("Message ID:", info.messageId);
+        console.debug("Preview URL:", nodemailer.getTestMessageUrl(info));
 
-		return {
-			success: true,
-			message: `Message sent: ${info.messageId}`,
-			previewUrl: nodemailer.getTestMessageUrl(info),
-		};
-	} catch (error: any) {
-		console.error("Error sending email: ", error);
-		return error;
-	}
+        return {
+            success: true,
+            messageId: info.messageId,
+            previewUrl: nodemailer.getTestMessageUrl(info),
+            accepted: info.accepted,
+            rejected: info.rejected
+        };
+    } catch (error: any) {
+        console.error("Email failed to send:");
+        console.error("Recipients:", formatRecipients(options.to));
+        console.error("Error details:", error.response || error.message);
+        
+        throw new EmailError("Failed to send email", {
+            recipients: options.to,
+            errorCode: error.code,
+            smtpResponse: error.response
+        });
+    }
 };
+
+// Helper functions
+function formatRecipients(recipients: string | string[]): string {
+    return Array.isArray(recipients) ? recipients.join(", ") : recipients;
+}
+
+function stripHtml(html: string): { result: string } {
+    // Simple HTML to text conversion (consider using a library like 'html-to-text' in production)
+    return {
+        result: html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
+    };
+}
 
 export default sendEmail;
