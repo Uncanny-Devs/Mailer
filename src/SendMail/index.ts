@@ -5,45 +5,45 @@ import { SendMailOptions as OriginalSendMailOptions } from "./sendMail.js";
 import generateEmailHtml from "./htmlPreprocessor.js"; // Add this import
 import { SendMailDto } from "./sendMail.dto.js"; // Add this import
 
-// Extended interface with JSX capabilities
+// Extended interface with html capabilities
 export interface SendMailOptions extends OriginalSendMailOptions {
-    options: SendMailDto & {
-        jsxPath?: string;
-        cssPath?: string;
-        attachmentsPath?: string;
-    };
+	options: SendMailDto & {
+		htmlPath?: string;
+		cssPath?: string;
+		attachmentsPath?: string;
+	};
 }
 
 // Modified mailer function
 export default async function mailer({ options, config }: SendMailOptions) {
-    const nodemailerConfig: NodeMailerConfigDto = configGenerator(config);
-    
-    // Destructure JSX-specific options
-    const { jsxPath, cssPath, attachmentsPath, ...emailOptions } = options;
+	const nodemailerConfig: NodeMailerConfigDto = configGenerator(config);
 
-    if (jsxPath) {
-        const { html, attachments } = await generateEmailHtml(
-            jsxPath,
-            cssPath,
-            attachmentsPath
-        );
+	// Destructure html-specific options
+	const { htmlPath, cssPath, attachmentsPath, ...emailOptions } = options;
 
-        return sendEmail({
-            options: {
-                ...emailOptions,
-                html,
-                attachments: [
-                    ...(emailOptions.attachments || []),
-                    ...(attachments || [])
-                ]
-            },
-            config: nodemailerConfig
-        });
-    }
+	if (htmlPath) {
+		const { html, attachments } = await generateEmailHtml(
+			htmlPath,
+			cssPath,
+			attachmentsPath
+		);
 
-    // Original behavior for non-JSX emails
-    return sendEmail({
-        options: emailOptions,
-        config: nodemailerConfig
-    });
+		return sendEmail({
+			options: {
+				...emailOptions,
+				html,
+				attachments: [
+					...(emailOptions.attachments || []),
+					...(attachments || []),
+				],
+			},
+			config: nodemailerConfig,
+		});
+	}
+
+	// Original behavior for non-html emails
+	return sendEmail({
+		options: emailOptions,
+		config: nodemailerConfig,
+	});
 }
